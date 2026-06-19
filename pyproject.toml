@@ -1,0 +1,30 @@
+[project]
+name = "2do"
+version = "0.1.0"
+description = "My personal Todo CLI"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+  "pydantic>=2.13.4",
+  "python-dotenv>=1.2.2",
+  "prompt-toolkit>=3.0.50",
+  "rich>=15.0.0",
+  "sqlmodel>=0.0.38",
+  "jdatetime>=5.3.0",
+]
+
+[project.scripts]
+2do = "main:main"
+
+[tool.ruff]
+line-length = 80
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+
+[tool.ruff.lint]
+ignore = ["E251"]
+
+[dependency-groups]
+dev = ["ruff>=0.15.18"]
