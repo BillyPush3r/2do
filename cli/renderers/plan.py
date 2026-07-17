@@ -1,4 +1,5 @@
 from datetime import datetime
+from rich import box
 from rich.table import Table
 from constants import CONSOLE
 from db.models import Plan, Task
@@ -22,6 +23,8 @@ def render_plans(plans: list[Plan]):
         title='[bold blue]Plans',
         title_style='bold',
         header_style='bold cyan',
+        border_style='bright_blue',
+        box=box.ROUNDED,
     )
     table.add_column('[bold green]Title')
     table.add_column('[bold green]Tasks', justify='center')
@@ -40,9 +43,8 @@ def render_plan(plan: Plan | None):
     if not plan:
         CONSOLE.print('[bold red]Plan not found')
         return
-    CONSOLE.print(f'[bold cyan]Plan: [green]{plan.title}', justify='center')
     CONSOLE.print(
-        f'[bold]Created: [yellow]{_fmt_date(plan.created_at)}',
+        f'[bold cyan]Plan: [green]{plan.title}  [bold]Created: [yellow]{_fmt_date(plan.created_at)}',
         justify='center',
     )
     tasks = get_tasks(plan.uuid)
@@ -60,6 +62,8 @@ def render_tasks(tasks: list[Task]):
         title='[bold blue]Tasks',
         title_style='bold',
         header_style='bold cyan',
+        border_style='bright_blue',
+        box=box.ROUNDED,
     )
     table.add_column('[bold green]#', justify='center')
     table.add_column('[bold green]Title')

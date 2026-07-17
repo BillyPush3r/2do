@@ -1,3 +1,4 @@
+from rich import box
 from rich.tree import Tree
 from rich.table import Table
 from rich.panel import Panel
@@ -18,8 +19,8 @@ def render_schemas():
     task_branch.add(
         '[bold green]Status: [italic yellow]Literal["Done", "In Progress", "Pending"]'
     )
-    panel = Panel.fit(tree)
-    table = Table(title='Database Schemas')
+    panel = Panel.fit(tree, box=box.ROUNDED)
+    table = Table(title='[bold blue]Database Schemas', border_style='bright_blue', box=box.ROUNDED)
     table.add_column('[bold blue]Schema', justify='center')
     table.add_column('[bold blue]Structure', justify='left')
     table.add_column('[bold blue]Explanation', justify='left')
@@ -34,7 +35,11 @@ def render_schemas():
 
 
 def render_help():
-    table = Table(title='Commands')
+    table = Table(
+        title='[bold blue]Commands',
+        border_style='bright_blue',
+        box=box.ROUNDED,
+    )
     table.add_column('[bold blue]Command', justify='center')
     table.add_column('[bold blue]Description', justify='center')
     table.add_column('[bold blue]Options', justify='center')
@@ -43,41 +48,27 @@ def render_help():
     table.add_row(
         '[italic green]help',
         'Shows this guide',
-        '[italic red]✗',
+        '[italic red]--',
         '[italic green] h',
     )
-    table.add_section()
-
     table.add_row(
-        '[italic green]exit',
-        'Exits the CLI',
-        '[italic red]✗',
-        '[italic green]e',
+        '[italic green]exit', 'Exits the CLI', '[italic red]--', '[italic green]e'
     )
     table.add_row(
-        '[italic green]quit',
-        'Quits the CLI',
-        '[italic red]✗',
-        '[italic green]q',
+        '[italic green]quit', 'Quits the CLI', '[italic red]--', '[italic green]q'
     )
-    table.add_section()
-
     table.add_row(
         '[italic green]schemas',
         'Shows database schemas',
-        '[italic red]✗',
-        '[italic red]✗',
+        '[italic red]--',
+        '[italic red]--',
     )
-    table.add_section()
-
     table.add_row(
         '[italic green]new',
         'Creates a new object in database',
         '[italic blue]<object>',
         '[italic green]n <object>',
     )
-    table.add_section()
-    table.add_row('', '[italic blue]examples', '', '')
     table.add_row(
         '[green]new[/green] [yellow]plan',
         'Creates a new plan with a default name',
@@ -96,16 +87,12 @@ def render_help():
         '[italic blue]task <plan> <title>',
         '[italic green]n task <plan> <task>',
     )
-    table.add_section()
-
     table.add_row(
         '[italic green]get',
         'Reads an object from database',
         '[italic blue]<object>',
         '[italic green]g',
     )
-    table.add_section()
-    table.add_row('', '[italic blue]examples', '', '')
     table.add_row(
         '[green]get[/green] [yellow]plans',
         'Lists all plans',
@@ -130,8 +117,6 @@ def render_help():
         '',
         '',
     )
-    table.add_section()
-
     table.add_row(
         '[italic green]delete[/italic green] [yellow]plan[/yellow] [red]<name>',
         'Deletes a plan by title',
@@ -144,8 +129,6 @@ def render_help():
         '[italic blue]task <plan> <idx>',
         '[italic green]d|rm task <plan> <idx>',
     )
-    table.add_section()
-
     table.add_row(
         '[italic green]done[/italic green] [red]<plan> <idx>',
         'Marks a task as done',
@@ -164,38 +147,42 @@ def render_help():
         '[italic blue]inprogress <plan> <idx>',
         '[italic green]inprogress',
     )
-    table.add_section()
-
     table.add_row(
         '[italic green]u[/italic green] [red]<plan> <idx> --priority high',
         'Updates a task (--title, --status, --priority)',
         '[italic blue]--title|--status|--priority',
         '[italic green]upd',
     )
-    table.add_section()
-
     table.add_row(
         '[italic green]swap[/italic green] [red]<plan> <idx1> <idx2>',
         'Swaps the order of two tasks in a plan',
         '[italic blue]<plan> <idx1> <idx2>',
         '[italic green]swap',
     )
-    table.add_section()
+    table.add_row(
+        '[italic green]mv[/italic green] [red]<plan> <from> <to>',
+        'Moves a task to a new position',
+        '[italic blue]<plan> <from_idx> <to_idx>',
+        '[italic green]mv | move',
+    )
+    table.add_row(
+        '[green]mv[/green] [yellow]myplan[/yellow] [red]3[/red] [cyan]1',
+        'Moves task #3 to position #1',
+        '[italic blue]<plan> <from> <to>',
+        '[italic green]mv',
+    )
     table.add_row(
         '[italic green]today',
-        'Shows today\'s Gregorian and Shamsi date',
-        '[italic red]✗',
+        "Shows today's Gregorian and Shamsi date",
+        '[italic red]--',
         '[italic green]today',
     )
-    table.add_section()
     table.add_row(
         '[italic green]pomo',
         'Starts a pomodoro timer for a task',
         '[italic blue]<plan> <idx> [minutes]',
         '[italic green]pomo',
     )
-    table.add_section()
-    table.add_row('', '[italic blue]examples', '', '')
     table.add_row(
         '[green]pomo[/green] [yellow]myplan[/yellow] [red]1[/red] [cyan]25',
         'Allocates & starts a 25 min timer for task 1 in plan "myplan"',
@@ -214,7 +201,6 @@ def render_help():
         '[italic blue]<plan> <idx> --set <min>',
         '[italic green]pomo',
     )
-    table.add_section()
     table.add_row(
         '[italic green]u[/italic green] [red]<plan> <idx> --allocate 25',
         'Sets time allocation on a task',

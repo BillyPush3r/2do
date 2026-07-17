@@ -8,7 +8,7 @@ TOP_CMDS = [
     'exit', 'e', 'quit', 'q', 'help', 'h', 'schemas',
     'new', 'n', 'get', 'g', 'ls', 'l', 'delete', 'd', 'rm',
     'update', 'u', 'pending', 'in_progress', 'inprogress', 'done',
-    'swap', 'rename', 'r', 'today', 'pomo',
+    'swap', 'mv', 'move', 'rename', 'r', 'today', 'pomo',
 ]
 
 NEW_SUBS = ['plan', 'task']
@@ -60,6 +60,8 @@ class TdoCompleter(Completer):
                 candidates = _plan_titles()
             elif cmd in ('update', 'u'):
                 candidates = _plan_titles()
+            elif cmd in ('mv', 'move'):
+                candidates = _plan_titles()
             elif cmd in ('rename', 'r'):
                 candidates = _plan_titles()
             elif cmd == 'pomo':
@@ -83,6 +85,8 @@ class TdoCompleter(Completer):
                     candidates = _task_indices(sub)
             elif cmd in ('rename', 'r'):
                 candidates = _plan_titles()
+            elif cmd in ('mv', 'move'):
+                candidates = _task_indices(sub)
             elif cmd == 'pomo':
                 candidates = _task_indices(sub)
             else:

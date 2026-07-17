@@ -4,6 +4,7 @@ import sys
 import select
 import tty
 import termios
+from rich import box
 from rich.live import Live
 from rich.panel import Panel
 from rich.align import Align
@@ -45,26 +46,27 @@ class PomoTimer:
         time_str = self._fmt(self.remaining)
 
         if final or self.remaining <= 0:
-            status = '[bold red]⏰  TIME\'S UP![/bold red]'
+            status = '[bold red]TIME\'S UP![/bold red]'
         elif self.paused:
-            status = '[bold yellow]⏸  PAUSED[/bold yellow]'
+            status = '[bold yellow]PAUSED[/bold yellow]'
         else:
-            status = '[bold green]▶  RUNNING[/bold green]'
+            status = '[bold green]RUNNING[/bold green]'
 
         content = (
-            f'[bold cyan]Plan:[/bold cyan] {self.plan_title}\n'
-            f'[bold cyan]Task:[/bold cyan] #{self.task.idx} {self.task.title}\n\n'
+            f'[bold cyan]Plan:[/bold cyan]  [italic]{self.plan_title}[/italic]\n'
+            f'[bold cyan]Task:[/bold cyan]  [italic]#{self.task.idx} {self.task.title}[/italic]\n\n'
             f'[bold white]{time_str}[/bold white]\n\n'
-            f'[cyan]{bar}[/cyan] {pct:.0f}%\n\n'
+            f'{bar}  [bold]{pct:.0f}%[/bold]\n\n'
             f'{status}\n\n'
-            f'[dim](p) pause  (c) continue  (q) quit[/dim]'
+            f'[dim](p) pause  (c) resume  (q) quit[/dim]'
         )
 
-        return Panel(
-            Align.center(content, vertical='middle'),
-            title='[bold]🍅 Pomodoro',
+        return Panel.fit(
+            content,
+            title='[bold blue]Pomodoro Timer',
             border_style='bold blue',
-            padding=(1, 2),
+            box=box.ROUNDED,
+            padding=(1, 3),
         )
 
     def run(self):
@@ -72,7 +74,7 @@ class PomoTimer:
         try:
             tty.setraw(sys.stdin.fileno())
             with Live(
-                self._build_panel(),
+                Align.center(self._build_panel()),
                 refresh_per_second=10,
                 console=CONSOLE,
                 auto_refresh=False,
@@ -96,13 +98,13 @@ class PomoTimer:
                         self.remaining = max(0, self.remaining - dt)
 
                     last_tick = now
-                    live.update(self._build_panel())
+                    live.update(Align.center(self._build_panel()))
                     live.refresh()
 
                 if self.remaining <= 0:
                     self.completed = True
                     self.spent_seconds = self.total_seconds
-                    live.update(self._build_panel(final=True))
+                    live.update(Align.center(self._build_panel(final=True)))
                     live.refresh()
                     sys.stdout.write('\a')
                     sys.stdout.flush()

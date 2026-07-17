@@ -115,6 +115,56 @@ def update_task(
         return task
 
 
+def move_task(plan_uuid: str, from_idx: int, to_idx: int) -> bool:
+    if from_idx == to_idx:
+        return False
+    engine = get_engine()
+    with Session(engine) as session:
+        task = session.exec(
+            select(Task).where(and_(Task.plan_uuid == plan_uuid, Task.idx == from_idx))
+        ).first()
+        if not task:
+            return False
+        now = _now()
+        if from_idx < to_idx:
+            tasks_to_shift = session.exec(
+                select(Task).where(
+                    and_(
+                        Task.plan_uuid == plan_uuid,
+                        Task.idx > from_idx,
+                        Task.idx <= to_idx,
+                    )
+                )
+            ).all()
+            for t in tasks_to_shift:
+                t.idx -= 1
+                t.updated_at = now
+                session.add(t)
+        else:
+            tasks_to_shift = session.exec(
+                select(Task).where(
+                    and_(
+                        Task.plan_uuid == plan_uuid,
+                        Task.idx >= to_idx,
+                        Task.idx < from_idx,
+                    )
+                )
+            ).all()
+            for t in tasks_to_shift:
+                t.idx += 1
+                t.updated_at = now
+                session.add(t)
+        task.idx = to_idx
+        task.updated_at = now
+        session.add(task)
+        plan = session.get(Plan, plan_uuid)
+        if plan:
+            plan.updated_at = now
+            session.add(plan)
+        session.commit()
+        return True
+
+
 def swap_task_indices(plan_uuid: str, idx1: int, idx2: int) -> bool:
     if idx1 == idx2:
         return False

@@ -8,6 +8,7 @@ from db.task import (
     get_task_by_plan_and_idx,
     delete_task,
     update_task,
+    move_task,
     swap_task_indices,
 )
 from db.models import Status, Priority
@@ -65,6 +66,8 @@ def handle_sequences(sequence: str) -> bool:
             handle_status_change(Status.IN_PROGRESS, args)
         case 'done':
             handle_status_change(Status.DONE, args)
+        case 'mv' | 'move':
+            handle_move(args)
         case 'swap':
             handle_swap(args)
         case 'rename' | 'r':
@@ -101,6 +104,29 @@ def handle_status_change(status: Status, args: list[str]):
         return
     update_task(task.uuid, status=status)
     CONSOLE.print(f'[bold green]Task #{idx} set to {status.value}')
+
+
+def handle_move(args: list[str]):
+    if len(args) < 4:
+        CONSOLE.print('[bold red]Usage: mv <plan> <from_idx> <to_idx>')
+        return
+    plan = get_plan(' '.join(args[1:-2]))
+    if not plan:
+        CONSOLE.print('[bold red]Plan not found')
+        return
+    try:
+        from_idx = int(args[-2])
+        to_idx = int(args[-1])
+    except ValueError:
+        CONSOLE.print('[bold red]Usage: mv <plan> <from_idx> <to_idx>')
+        return
+    if from_idx == to_idx:
+        CONSOLE.print('[bold yellow]Source and target indices are the same — nothing to do')
+        return
+    if move_task(plan.uuid, from_idx, to_idx):
+        CONSOLE.print(f'[bold green]Task #{from_idx} moved to position #{to_idx} in plan: {plan.title}')
+    else:
+        CONSOLE.print(f'[bold red]Could not move task #{from_idx} to #{to_idx} — check the indices are valid')
 
 
 def handle_swap(args: list[str]):
@@ -418,7 +444,7 @@ def handle_pomo(args: list[str]):
     result = timer.run()
 
     if result['completed']:
-        CONSOLE.print('[bold green]✓ Timer completed![/bold green]')
+        CONSOLE.print('[bold green]Timer completed![/bold green]')
         update_task(task.uuid, pomodoro_count=(task.pomodoro_count or 0) + 1)
         try:
             response = input('Mark task as done? [y/N] ').strip().lower()
